@@ -43,13 +43,14 @@ namespace AI
 		CreateTemplates();
 
 		// Create a container for both teams.
-		for (int i = 0; i < static_cast<int>(Team::Count); i++)
+		for (int i = 0; i < static_cast<int>(Team::COUNT); i++)
 		{
 			Team team = static_cast<Team>(i);
 			myInfluenceMaps[team] = std::unordered_map<HeatType, Heatmap*>();
 		}
 
 		// Create every type of influence map for both teams.
+		// Would only create necessary maps based on registration in a real scenario.
 		for (int i = 0; i < static_cast<int>(HeatType::COUNT); i++)
 		{
 			HeatType type = static_cast<HeatType>(i);
@@ -199,7 +200,7 @@ namespace AI
 	}
 	void HeatmapManager::RemoveUser(InfluenceComponent* aUser)
 	{
-		// Locate the user to remove.
+		// Locate the user to remove //
 		InfluenceComponent* userToRemove = nullptr;
 		int index = 0;
 		for (int i = 0; i < myUsers.size(); ++i)
@@ -214,7 +215,7 @@ namespace AI
 
 		if (!userToRemove) return;
 
-		// Remove user influence.
+		// Remove user influence //
 		auto& container = myInfluenceMaps[userToRemove->myTeam];
 		for (auto& imprint : userToRemove->myImprints)
 		{
@@ -232,7 +233,7 @@ namespace AI
 			}
 		}
 
-		// Remove user.
+		// Remove user //
 		std::swap(myUsers[index], myUsers.back());
 		myUsers.pop_back();
 	}
@@ -242,7 +243,7 @@ namespace AI
 		aUser->location = GetCoordinate(aUser->myPosition);
 		aUser->futureLocation = aUser->location;
 
-		// [Add Influence upon registration] //
+		// [Paint Influence upon registration] //
 		auto& container = myInfluenceMaps[aUser->myTeam];
 		for (auto& imprint : aUser->myImprints)
 		{
@@ -252,23 +253,14 @@ namespace AI
 
 	void HeatmapManager::Update()
 	{
+	#ifdef DEBUG_ACTIVE
+	
 		myWorkMap.myDebug.myHeatSpriteBatch.myInstances.clear();
-
-		DEBUG_ONLY(
-			{
-				for (int i = 0; i < myHeatSpriteBatch.myInstances.size(); ++i)
-				{
-					myHeatSpriteBatch.myInstances[i].myAttributes.myColor = { 0, 0, 0, 0 };
-				}
-				for (auto& key : myInfluenceMaps)
-				{
-					for (auto& map : key.second)
-					{
-						map.second->DebugRender(myDebugRenderer);
-					}
-				}
-
-			});
+		for (int i = 0; i < myHeatSpriteBatch.myInstances.size(); ++i)
+		{
+			myHeatSpriteBatch.myInstances[i].myAttributes.myColor = { 0, 0, 0, 0 };
+		}
+	#endif
 
 		RegistrationUpdate();
 
@@ -277,16 +269,12 @@ namespace AI
 		{
 			ON_THREAD(
 				myThreadWorking = true;
-				myRepaintThread = std::thread(&AI::HeatmapManager::RepaintUserfluence, this);
+				myRepaintThread = std::thread(&AI::HeatmapManager::RepaintInfluence, this);
 				myRepaintThread.detach();
 			);
 
-
-			NO_THREAD(RepaintUserfluence())
+			NO_THREAD(RepaintInfluence())
 		}
-
-		DEBUG_ONLY(mySpriteManager->QueueSpriteBatch(&myHeatSpriteBatch));
-		
 	}
 	void HeatmapManager::RegistrationUpdate()
 	{
@@ -305,7 +293,7 @@ namespace AI
 		myUsersToAdd.clear();
 		myUsersToRemove.clear();
 	}
-	void HeatmapManager::RepaintUserfluence()
+	void HeatmapManager::RepaintInfluence()
 	{
 		myThreadWorking = true;
 
@@ -330,7 +318,6 @@ namespace AI
 				{
 					// [TODO] -> Imprints should tell if the influence should be applied to future location or not.
 					HeatTemplate& heatTemplate = GetImprintTemplate(imprint);
-
 					Heatmap& map = *container[imprint.type];
 
 					ON_THREAD(map.LockMutex());
@@ -383,7 +370,10 @@ namespace AI
 #pragma region Debug
 	void HeatmapManager::LateUpdate()
 	{
-		DEBUG_ONLY(mySpriteManager->QueueSpriteBatch(&myWorkMap.myDebug.myHeatSpriteBatch));
+#ifdef DEBUG_ACTIVE
+		mySpriteManager->QueueSpriteBatch(&myWorkMap.myDebug.myHeatSpriteBatch);
+		mySpriteManager->QueueSpriteBatch(&myHeatSpriteBatch);
+#endif
 	}
 	void HeatmapManager::DebugDrawGrid()
 	{
@@ -419,20 +409,16 @@ namespace AI
 	{
 	#ifdef DEBUG_ACTIVE
 
-		//auto& container = myInfluenceMaps[aTeam];
-		auto& container1 = myInfluenceMaps[Team::Player];
-		auto& container2 = myInfluenceMaps[Team::Enemy];
+		auto& container = myInfluenceMaps[aTeam];
 
-		//if (container.find(aType) == container.end()) { return; }
+		if (container.find(aType) == container.end()) { return; }
 
-		//auto& map = container.at(aType);
-		auto& map1 = container1.at(aType);
-		auto& map2 = container2.at(aType);
+		auto& map = container.at(aType);
 
 		Vector2i cord = {};
 		Vector2f cellCenter = {};
 
-		for (int i = 0; i < map1->myValues.size(); ++i)
+		for (int i = 0; i < map->myValues.size(); ++i)
 		{
 			if (!myValidCells[i]) {
 
@@ -446,12 +432,9 @@ namespace AI
 				myMin.y + ((cord.y + 0.5f) * myCellSize) - 10.f
 			};
 
-			Vector4f debugColor = debug::GetHeatColor(map1->myValues[i], aType, Team::Player);
-			Vector4f debugColor1 = debug::GetHeatColor(map2->myValues[i], aType, Team::Enemy);
+			Vector4f debugColor = debug::GetHeatColor(map->myValues[i], aType, aTeam);
 
-			Vector4f finalColor = debug::BlendColors(debugColor, debugColor1);
-
-			myHeatSpriteBatch.myInstances[i].myAttributes.myColor = { finalColor.x, finalColor.y, finalColor.z, finalColor.w };
+			myHeatSpriteBatch.myInstances[i].myAttributes.myColor = { debugColor.x, debugColor.y, debugColor.z, debugColor.w };
 		}
 
 		mySpriteManager->QueueSpriteBatch(&myHeatSpriteBatch);
@@ -524,12 +507,6 @@ namespace AI
 		myHeatSpriteBatch.myData.myMode = KE::SpriteBatchMode::Default;
 		myHeatSpriteBatch.myInstances.resize(cellCount);
 
-
-		//myWorkmapSpriteBatch.myData.myTexture = textureLoader->GetTextureFromPath("Data/EngineAssets/KEDefault_c.dds");
-		//myWorkmapSpriteBatch.myInstances.reserve(8192);
-		//myWorkmapSpriteBatch.myData.myMode = KE::SpriteBatchMode::Default;
-		//myWorkmapSpriteBatch.myInstances.resize(cellCount);
-
 		Matrix4x4f spriteMatrix;
 		spriteMatrix(2, 2) = 0.0f;
 		spriteMatrix(2, 3) = 1.0f;
@@ -546,64 +523,7 @@ namespace AI
 			myHeatSpriteBatch.myInstances[i].myAttributes.myTransform.SetPosition(position);
 			myHeatSpriteBatch.myInstances[i].myAttributes.myTransform.SetScale(scale);
 			myHeatSpriteBatch.myInstances[i].myAttributes.myColor = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-			//position.y += 0.02f;
-			//myWorkmapSpriteBatch.myInstances[i].myAttributes.myTransform.SetMatrix(spriteMatrix);
-			//myWorkmapSpriteBatch.myInstances[i].myAttributes.myTransform.SetPosition(position);
-			//myWorkmapSpriteBatch.myInstances[i].myAttributes.myTransform.SetScale(scale);
-			//myWorkmapSpriteBatch.myInstances[i].myAttributes.myColor = { 0.0f, 0.0f, 0.0f, 0.0f };
 		}
-
-		OnInit();
-	}
-
-	void HeatmapManager::OnReceiveEvent(ES::Event& aEvent)
-	{
-		KE::PlayerEvent* playerEvent = dynamic_cast<KE::PlayerEvent*>(&aEvent);
-
-		if (playerEvent != nullptr)
-		{
-			if (playerEvent->myInputType == KE::eInputType::LeftClick)
-			{
-				if (playerEvent->myInteractionType != KE::eInteractionType::Pressed) return;
-
-				Vector2f mousepos;
-				mousepos.x = (float)playerEvent->myMousePosition.x;
-				mousepos.y = (float)playerEvent->myMousePosition.y;
-
-				if (!myRaycastHandler || mousepos.x == -1) return;
-
-				Vector3f worldPos = myRaycastHandler->GridRaycast(mousepos);
-
-				//Rasteritze(worldPos, HeatType::Threat, 1, HeatValue::High);
-			}
-
-			if (playerEvent->myInputType == KE::eInputType::Space)
-			{
-				HeatType type = HeatType::Threat;
-
-				//if (myInfluenceMaps.find(type) != myInfluenceMaps.end())
-				//{
-				//	auto& map = myInfluenceMaps[type];
-				//
-				//
-				//	map.Clear();
-				//	//std::fill(map.begin(), map.end(), 0.0f);
-				//	//for (auto& sprite : mySpriteBatch.myInstances)
-				//	//{
-				//	//	sprite.myAttributes.myColor = { 0,0,0,1 };
-				//	//}
-				//}
-			}
-		}
-	}
-	void HeatmapManager::OnInit()
-	{
-		ES::EventSystem::GetInstance().Attach<KE::PlayerEvent>(this);
-	}
-	void HeatmapManager::OnDestroy()
-	{
-
 	}
 
 	namespace debug

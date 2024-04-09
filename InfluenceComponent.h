@@ -11,11 +11,11 @@ namespace AI
 
 	struct InfluenceComponentData
 	{
-		Team team = Team::Count;
+		Team team = Team::COUNT;
 		std::vector<InfluenceData> influenceTypes;
 		HeatmapManager* heatmapManager = nullptr;
 	};
-
+	
 	class InfluenceComponent : public KE::Component
 	{
 		friend class HeatmapManager;
@@ -39,7 +39,7 @@ namespace AI
 		const Vector3f* myVelocity = nullptr;
 	private:
 		std::vector<InfluenceData> myImprints;
-		Team myTeam = Team::Count;
+		Team myTeam = Team::COUNT;
 		HeatmapManager* myHeatmapManager = nullptr;
 		bool isDynamic = false;
 	};

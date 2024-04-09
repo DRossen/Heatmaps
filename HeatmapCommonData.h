@@ -7,7 +7,7 @@ namespace AI
 	{
 		Player,
 		Enemy,
-		Count
+		COUNT
 	};
 
 	enum class HeatType

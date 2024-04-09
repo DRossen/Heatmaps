@@ -13,8 +13,10 @@ namespace AI
 	
 	}
 
-	InfluenceComponent::~InfluenceComponent()
-	{}
+	InfluenceComponent::~InfluenceComponent() 
+	{
+	
+	}
 
 	void InfluenceComponent::Awake()
 	{

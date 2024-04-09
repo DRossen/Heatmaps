@@ -28,12 +28,9 @@ public:
 
 	static inline float Read(float aDistance, float aRadius)
 	{
-		// Drag down distance with a fifth of the radius,
-		// in order to preserve high values on nearby cells.
 		float scalar = aRadius * 0.2f;
 
 		float t = (std::max(0.0f, aDistance - scalar) / aRadius);
-		//float t = (aDistance / aRadius * 1.15f);
 
 		float value = 1.0f - t;
 

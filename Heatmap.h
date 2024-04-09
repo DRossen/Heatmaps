@@ -28,8 +28,6 @@ namespace AI
 		virtual void FloodFillInfluence(const Vector2i& aOriginCoord, const InfluenceData& aData, float aAmount = 1.0f);
 		virtual void Clear() { std::fill(myValues.begin(), myValues.end(), 0.0f); }
 
-		//void LEGCAY_SpreadInfluence(const Vector2i& aOriginCoord, const HeatTemplate& aTemplate, float aAmount = 1.0f);
-		
 		inline Vector3f GetPosByIndex(const int aIndex) const;
 		inline Vector2i GetCoordinate(const Vector3f& aPos) const;
 		inline int GetIndexByPos(const Vector3f& aPos) const;
@@ -53,13 +51,15 @@ namespace AI
 
 	inline Vector3f Heatmap::GetPosByIndex(const int aIndex) const
 	{
-		Vector3f output = { 0,0,0 };
+		Vector2i coord = { (aIndex % myGridSize.x), (aIndex / myGridSize.x) };
 
-		Vector2i cord = { (aIndex % myGridSize.x), (aIndex / myGridSize.x) };
+		Vector3f output =
+		{
+			myMin.x + (coord.x + 0.5f) * myCellSize,
+			0.0f,
+			myMin.y + (coord.y + 0.5f) * myCellSize
+		};
 
-		output.x = myMin.x + (cord.x + 0.5f) * myCellSize;
-		output.y = 0.0f;
-		output.z = myMin.y + (cord.y + 0.5f) * myCellSize;
 
 		return output;
 	}
@@ -75,8 +75,8 @@ namespace AI
 	}
 	inline int Heatmap::GetIndexByPos(const Vector3f& aPos) const
 	{
-		Vector2i coordinate = GetCoordinate(aPos);
+		Vector2i coord = GetCoordinate(aPos);
 
-		return coordinate.y * myGridSize.x + coordinate.x;
+		return coord.y * myGridSize.x + coord.x;
 	}
 }

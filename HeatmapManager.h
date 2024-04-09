@@ -55,7 +55,7 @@ namespace AI
 		Team textTeam = Team::Enemy;
 	};
 
-	class HeatmapManager : ES::IObserver
+	class HeatmapManager
 	{
 		KE_EDITOR_FRIEND;
 		friend class KE_EDITOR::InfluenceView;
@@ -82,18 +82,13 @@ namespace AI
 		void DebugDrawGrid();
 		void DebugDrawHeatmap(Team aTeam = Team::Enemy, HeatType aType = HeatType::Threat);
 		void DebugDrawValidCells();
-
-
-		void OnReceiveEvent(ES::Event& aEvent) override;
-		void OnInit() override;
-		void OnDestroy() override;
 #pragma endregion
 
 	private:
 		void RemoveUser(InfluenceComponent* aUser);
 		void AddUser(InfluenceComponent* aUser);
 		void RegistrationUpdate();
-		void RepaintUserfluence();
+		void RepaintInfluence();
 		void CreateTemplates();
 		void InitTemplate(const int aSize, FalloffFunction aFallofCurve, HeatTemplate& aTemplate);
 
@@ -165,6 +160,7 @@ namespace AI
 		return coordinate.y * myGridSize.x + coordinate.x;
 	}
 
+	// Added in it's own namespace since it's used in the editor as well //
 	namespace debug
 	{
 		void DrawLineToLocation(Vector3f aStart, Vector3f aEnd, Vector4f aColor = { 1,1,1,1 });

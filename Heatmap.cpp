@@ -6,10 +6,11 @@
 
 namespace AI
 {
-	Heatmap::Heatmap(HeatmapManager* aManager) : myManager(aManager), myValidCells(&aManager->myValidCells), myMutex()
+	Heatmap::Heatmap(HeatmapManager* aManager) : 
+		myManager(aManager), myValidCells(&aManager->myValidCells), myMutex() 
 	{
-
-	};
+	
+	}
 
 	void Heatmap::Init(const Vector2i aGridSize, Vector2i aAnchor, const Vector2f aMin, const Vector2f aMax, const float aCellSize)
 	{
@@ -93,11 +94,6 @@ namespace AI
 
 	void Heatmap::DebugRender(KE::DebugRenderer* aDbg)
 	{
-		// Render a sphere at the min and max of the heatmap for debugging purposes.
-		//Vector4f color = { 1.f, 0.f, 0.f, 1.f };
-		//Vector3f min = { myMin.x, 0.f, myMin.y };
-		//Vector3f max = { myMax.x, 0.f, myMax.y };
-		//aDbg->RenderSphere(min, 0.1f, color);
-		//aDbg->RenderSphere(max, 0.1f, color);
+
 	}
 }
