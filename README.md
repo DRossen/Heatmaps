@@ -1,10 +1,15 @@
 # Modular Heatmaps
-C++ implementation of Modular Heatmaps.
-- Inspired by Dave Mark's GDC talk https://www.gdcvault.com/play/1025243/Spatial-Knowledge-Representation-through-Modular
+C++ implementation of Modular Heatmaps. Inspired by Dave Mark's GDC talk - [GDC link](https://www.gdcvault.com/play/1025243/Spatial-Knowledge-Representation-through-Modular)
+
+# Goal
+The goal is to give AIs the ability to make more advanced decisions and to retrieve data on what's happening in the world. <br/><br/>
+**For a more in-depth explanation, check out my portfolio section for [Heatmaps](https://www.danielrosen.dev/heatmaps).**
 
 # Features
-- Heatmaps (Container for influence data and contains functionality to spread influence).
-- HeatmapManager (Responsible for keeping heatmaps up-to-date based on user data(influenceComponent).
-- InfluenceComponent (Defines which types of influences a user should apply to the heatmaps).
-- Workmap implementation (The interface to collect information from the heatmaps).
-- InterestCurves (Different types of curves that defines the falloff ratio of influence).
+- **Heatmaps** (Container for influence data and contains functionality to spread influence).
+- **HeatmapManager** (Responsible for keeping heatmaps up-to-date based on user data(influenceComponent).
+- **InfluenceComponent** (Defines which types of influences a user should apply to the heatmaps).
+- **Workmap implementation** (The interface to collect information from the heatmaps).
+- **InterestCurves** (Defines the falloff ratio of influence).
+
+
