@@ -3,7 +3,7 @@ C++ implementation of Modular Heatmaps. Inspired by Dave Mark's GDC talk - [GDC 
 
 # Goal
 The goal is to give AIs the ability to make more advanced decisions and to retrieve data on what's happening in the world. <br/><br/>
-**For a more in-depth explanation, check out my portfolio section for [Heatmaps](https://www.danielrosen.dev/heatmaps).**
+**For a more in-depth explanation, check out my portfolio section for [Heatmaps]([https://www.danielrosen.dev/heatmaps](https://drossen.github.io/portfolio/#influencemaps)).**
 
 # Features
 - **Heatmaps** (Container for influence data and contains functionality to spread influence).
